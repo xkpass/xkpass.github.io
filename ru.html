@@ -1,46 +1,46 @@
-<html lang="en">
+<html lang="ru">
 
 <head>
     <meta charset="utf-8" />
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, user-scalable=1.0, minimum-scale=1.0, maximum-scale=1.0">
-    <title>XKCD password generator</title>
+    <title>XKCD генератор паролей</title>
     <script>
         async function makePassword() {
-            // We download EFF list and check integrity. Don't trust integrity check, lets make sure it works
-            // Open https://www.eff.org/files/2016/07/18/eff_large_wordlist.txt press F12 to open console and write
+            // Скачиваем список EFF и проверяем целостность. Не доверяйте проверке целостности, проверьте сами
+            // Открываем https://www.eff.org/files/2016/07/18/eff_large_wordlist.txt и жмем F12 чтобы открыть консоль и написать
 
             // await fetch(location.href, { integrity: 'sha384-08Zyc2ydrI+QM7TP2c1fgd3aA/gqwudW0UMg0DqfFf0fqP4CVuU45K7lnlUry9Ts' }).then((res) => res.text())
 
-            // You will see word list and no error
-            // Copy this expression, change one symbol (except sha384-, thats hash type) and evaluate it
-            // You will see integrity error
+            // Появится список слов, без ошибки
+            // Копируем этот код, меняем любой символ (кроме sha384-, это тип хеша) и выполняем его
+            // Появится ошибка целостности
             const wordList = await fetch("./eff_large_wordlist.txt", { integrity: 'sha384-08Zyc2ydrI+QM7TP2c1fgd3aA/gqwudW0UMg0DqfFf0fqP4CVuU45K7lnlUry9Ts' }).then((res) => res.text());
 
-            // Extract words using regular expression
+            // Извлекаем слова используя регулярное выражение
             const words = [...wordList.matchAll(/[a-z]+/g)].map(([word]) => word);
 
-            // Prepare array for random numbers
+            // Создаем массив для случайных чисел
             const passwordWordIds = new Uint16Array(4);
 
-            // Fill it by crypto strong pseudo random numbers
+            // Заполняем его криптостойкими псевдослучайными числами
             crypto.getRandomValues(passwordWordIds);
 
-            // Map each number to word. We use 4 words with 4096 combinations, thats 12 bits of entropy per word, 48 bits total
+            // Сопоставляем каждый номер слову. У нас будет 4 слова по 4096 вариантов в каждом, что добавляет по 12 бит энтропии на слово, 48 бит всего
             return [...passwordWordIds].map(id => words[id % 4096]).join(' ');
         }
 
         window.addEventListener('DOMContentLoaded', () => {
             makePassword()
-                // Make message
+                // Собираем сообщение
                 .then(password =>
-                    `<div>Your 48-bit entropy password:</div>` +
+                    `<div>Ваш пароль с 48 битной энтропией:</div>` +
                     `<div class="password-text">${password}</div>` +
-                    `<div>Good enough to be a master password, keep secret. Refresh page if you want another</div>`
+                    `<div>Достаточно хорош, чтобы быть мастер паролем, держите в секрете. Обновите страницу чтобы сгенерировать еще один</div>`
                 )
-                // Intercept error
-                .catch(() => 'Error while generating password')
-                // Put into page
+                // Перехватываем ошибку
+                .catch(() => 'Во время генерации пароля произошла ошибка')
+                // Записываем на страницу
                 .then(message => document.querySelector('.password').innerHTML = message);
         });
     </script>
@@ -172,48 +172,50 @@
         <a href="./ru.html" class="language-selector">🇷🇺</a>
     </div>
     <div class="description">
-        <div class="description-text">Nothing upon my sleeve in-browser XKCD password generator (unofficial).</div>
+        <div class="description-text">Надежный генератор XKCD паролей (неофициальный).</div>
         <div class="description-text">
-            Lightweight, no JS dependencies, based on <a
+            Легкий, без JS зависимостей, основан на <a
                 href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API" target="_blank"
-                rel="noopener">Web Crypto API</a> and <a
-                href="https://www.eff.org/files/2016/07/18/eff_large_wordlist.txt" target="_blank" rel="noopener">EFF
-                word list</a>.
+                rel="noopener">Web Crypto API</a> и <a
+                href="https://www.eff.org/files/2016/07/18/eff_large_wordlist.txt" target="_blank" rel="noopener">списке
+                слов от EFF</a>.
         </div>
         <div class="description-text">
-            <b>Don't trust, add <code>view-source:</code> before URL and check, its well commented.</b>
+            <b>Не доверяйте, добавьте <code>view-source:</code> перед адресом страницу и проверьте, код хорошо
+                откомментирован.</b>
         </div>
-        <div class="description-text">For more secure operation, use incognito mode to disable extensions.</div>
+        <div class="description-text">Для большей безопасности используйте режим инкогнито, в нем выключены расширения.
+        </div>
     </div>
     <img src="./img/wow.jpeg" class="wow" />
     <div class="password-container">
-        <div class="password">Generating...</div>
+        <div class="password">Генерация...</div>
     </div>
     <div class="xkcd-line">
-        <a href="https://xkcd.com/936/" target="_blank" rel="noopener" class="xkcd-item">
-            <img src="./img/en/xkcd1.png" class="xkcd-image" />
+        <a href="https://xkcd.ru/936/" target="_blank" rel="noopener" class="xkcd-item">
+            <img src="./img/ru/xkcd1.png" class="xkcd-image" />
         </a>
-        <a href="https://xkcd.com/936/" target="_blank" rel="noopener" class="xkcd-item">
-            <img src="./img/en/xkcd2.png" class="xkcd-image" />
+        <a href="https://xkcd.ru/936/" target="_blank" rel="noopener" class="xkcd-item">
+            <img src="./img/ru/xkcd2.png" class="xkcd-image" />
         </a>
-        <a href="https://xkcd.com/936/" target="_blank" rel="noopener" class="xkcd-item">
-            <img src="./img/en/xkcd3.png" class="xkcd-image" />
-        </a>
-    </div>
-    <div class="xkcd-line">
-        <a href="https://xkcd.com/936/" target="_blank" rel="noopener" class="xkcd-item">
-            <img src="./img/en/xkcd4.png" class="xkcd-image" />
-        </a>
-        <a href="https://xkcd.com/936/" target="_blank" rel="noopener" class="xkcd-item">
-            <img src="./img/en/xkcd5.png" class="xkcd-image" />
-        </a>
-        <a href="https://xkcd.com/936/" target="_blank" rel="noopener" class="xkcd-item">
-            <img src="./img/en/xkcd6.png" class="xkcd-image" />
+        <a href="https://xkcd.ru/936/" target="_blank" rel="noopener" class="xkcd-item">
+            <img src="./img/ru/xkcd3.png" class="xkcd-image" />
         </a>
     </div>
     <div class="xkcd-line">
-        <a href="https://xkcd.com/936/" target="_blank" rel="noopener" class="xkcd-item">
-            <img src="./img/en/xkcd7.png" class="xkcd-image" />
+        <a href="https://xkcd.ru/936/" target="_blank" rel="noopener" class="xkcd-item">
+            <img src="./img/ru/xkcd4.png" class="xkcd-image" />
+        </a>
+        <a href="https://xkcd.ru/936/" target="_blank" rel="noopener" class="xkcd-item">
+            <img src="./img/ru/xkcd5.png" class="xkcd-image" />
+        </a>
+        <a href="https://xkcd.ru/936/" target="_blank" rel="noopener" class="xkcd-item">
+            <img src="./img/ru/xkcd6.png" class="xkcd-image" />
+        </a>
+    </div>
+    <div class="xkcd-line">
+        <a href="https://xkcd.ru/936/" target="_blank" rel="noopener" class="xkcd-item">
+            <img src="./img/ru/xkcd7.png" class="xkcd-image" />
         </a>
     </div>
 </body>
