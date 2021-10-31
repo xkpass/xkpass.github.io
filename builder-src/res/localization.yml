@@ -1,0 +1,83 @@
+pages:
+  index.html:
+    flag: 🇺🇸
+    lang: en
+    title: XKCD password generator
+    generating: Generating...
+    scriptSources:
+      - wordlistUrl: ./res/eff_large_wordlist.txt
+        originalUrl: https://www.eff.org/files/2016/07/18/eff_large_wordlist.txt
+        integrity: sha384-08Zyc2ydrI+QM7TP2c1fgd3aA/gqwudW0UMg0DqfFf0fqP4CVuU45K7lnlUry9Ts
+        name: <div>Your 48-bit entropy EFF list password:</div>
+      - wordlistUrl: ./res/diceware_wordlist.txt
+        originalUrl: https://theworld.com/%7Ereinhold/diceware.wordlist.asc
+        integrity: sha384-4n493bkdsfRTGItNlVLnGkWyGb/YfACD/+Iu6/yor5D06tbp3cAZAFzM2z8SIJYe
+        name: <div>Your 48-bit entropy diceware(tm) list password:</div>
+    scriptTexts:
+      download: // Download wordlist and check its integrity
+      extract: // Extract words using regular expression, it matches to words after 5 digits and tab
+      prepare: // Prepare array for random numbers
+      fill: // Fill it by crypto strong pseudo random numbers
+      map: // Map each number to word. We use 4 words with 4096 combinations, thats 12 bits of entropy per word, 48 bits total
+      pass: |-
+        // Don't trust integrity verification, lets check it.
+        // Open REPLACE_LINK
+        // Press F12 and write
+        // await fetch(location.href, { integrity: 'REPLACE_INTEGRITY' }).then((res) => res.text())
+        // You will see content, integrity check succeessful
+        // Change one symbol in integrity except sha384-, thats hash type and evaluate it
+        // You will see integrity error
+      make: // Make message
+      passAfter: <div>Good enough to be a master password, keep secret. Refresh page if you want another</div>
+      intercept: // Intercept error
+      error: Error while generating password
+      put: // Put into page
+    objectPreloadComment: If you want save this page to operate offline, browser will know to download this files too
+    description:
+      - Nothing upon my sleeve in-browser XKCD password generator (unofficial).
+      - Lightweight, no JS dependencies, based on <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API" target="_blank" rel="noopener">Web Crypto API</a> and <a href="https://www.eff.org/files/2016/07/18/eff_large_wordlist.txt" target="_blank" rel="noopener">EFF word list</a>.
+      - <b>Don't trust, add <code>view-source:</code> before URL and check, its well commented.</b>
+      - For more secure operation, use incognito mode to disable extensions.
+    xkcdImgPath: ./res/img-en/
+    xkcdHref: https://xkcd.com/936/
+  ru.html:
+    flag: 🇷🇺
+    lang: ru
+    title: XKCD генератор паролей
+    generating: Генерация...
+    scriptSources:
+      - wordlistUrl: ./res/eff_large_wordlist.txt
+        originalUrl: https://www.eff.org/files/2016/07/18/eff_large_wordlist.txt
+        integrity: sha384-08Zyc2ydrI+QM7TP2c1fgd3aA/gqwudW0UMg0DqfFf0fqP4CVuU45K7lnlUry9Ts
+        name: <div>Ваш пароль с 48 битной энтропией по списку EFF:</div>
+      - wordlistUrl: ./res/diceware_wordlist.txt
+        originalUrl: https://theworld.com/%7Ereinhold/diceware.wordlist.asc
+        integrity: sha384-4n493bkdsfRTGItNlVLnGkWyGb/YfACD/+Iu6/yor5D06tbp3cAZAFzM2z8SIJYe
+        name: <div>Ваш пароль с 48 битной энтропией по списку diceware(tm):</div>
+    scriptTexts:
+      download: // Скачиваем список слов и проверяем его целостность
+      extract: // Извлекаем слова используя регулярное выражение, оно извлекает слова после 5 цифр и таба
+      prepare: // Создаем массив для случайных чисел
+      fill: // Заполняем его криптостойкими псевдослучайными числами
+      map: // Сопоставляем каждый номер слову. У нас будет 4 слова по 4096 вариантов в каждом, что добавляет по 12 бит энтропии на слово, 48 бит всего
+      pass: |-
+        // Не доверйте проверке целостности, проверьте
+        // Открываем REPLACE_LINK
+        // Нажимаем F12 и пишем
+        // await fetch(location.href, { integrity: 'REPLACE_INTEGRITY' }).then((res) => res.text())
+        // Вы увидите содержимое, проверка целостности успешна
+        // Измените один символ в хеше кроме sha384-, тк это его тип и нажмите выполнить
+        // Вы увидите ошибку проверки целостности
+      make: // Собираем сообщение
+      passAfter: <div>Достаточно хорош, чтобы быть мастер паролем, держите в секрете. Обновите страницу чтобы сгенерировать еще один</div>
+      intercept: // Перехватываем ошибку
+      error: Во время генерации пароля произошла ошибка
+      put: // Записываем на страницу
+    objectPreloadComment: Если вы захотите сохранить страницу для работы оффлайн, браузер нужно предупредить о том, чтобы скачать эти файлы
+    description:
+      - Надежный генератор XKCD паролей (неофициальный).
+      - Легкий, без JS зависимостей, основан на <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API" target="_blank" rel="noopener">Web Crypto API</a> и <a href="https://www.eff.org/files/2016/07/18/eff_large_wordlist.txt" target="_blank" rel="noopener">списке слов от EFF</a>.
+      - <b>Не доверяйте, добавьте <code>view-source:</code> перед адресом страницу и проверьте, код хорошо откомментирован.</b>
+      - Для большей безопасности используйте режим инкогнито, в нем выключены расширения.
+    xkcdImgPath: ./res/img-ru/
+    xkcdHref: https://xkcd.ru/936/

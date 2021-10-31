@@ -1,0 +1,122 @@
+body {
+    font-size: 20px;
+    line-height: 40px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    row-gap: 20px;
+}
+
+img {
+    object-fit: contain;
+}
+
+object {
+    display: none;
+}
+
+.languages {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-flow: column;
+}
+
+.language-selector {
+    text-decoration: none;
+    font-size: 50px;
+    margin: 10px;
+}
+
+.description {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    max-width: calc(100% - 400px);
+}
+
+.password-container {
+    flex-basis: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.password-text {
+    font-size: 42px;
+    margin: 10px 0;
+    font-weight: bold;
+}
+
+.password {
+    padding: 20px;
+    justify-content: center;
+    display: flex;
+    flex-flow: column;
+    background-color: lightgray;
+}
+
+.wow {
+    margin: 5px;
+    display: block;
+}
+
+.xkcd-line {
+    flex-basis: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.xkcd-item {
+    display: block;
+    margin: 5px;
+}
+
+.xkcd-image {
+    width: 100%;
+}
+
+@media (max-width: 1220px) {
+
+    body {
+        font-size: 15px;
+        line-height: 30px;
+    }
+
+    .languages {
+        flex-flow: row;
+    }
+
+    .password-text {
+        font-size: 30px;
+    }
+
+    body {
+        row-gap: 5px;
+    }
+
+    .password-container {
+        order: 1;
+    }
+
+    .description {
+        order: 2;
+        max-width: unset;
+    }
+
+    .xkcd-line {
+        order: 3;
+    }
+
+    .wow {
+        order: 4;
+    }
+}
+
+@media (max-width: 750px) {
+    .password-text {
+        font-size: 15px;
+    }
+}

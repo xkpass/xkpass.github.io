@@ -1,223 +1,119 @@
+<!DOCTYPE html>
 <html lang="ru">
-
-<head>
+  <head>
     <meta charset="utf-8" />
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1.0, user-scalable=1.0, minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=1.0, minimum-scale=1.0, maximum-scale=1.0" />
     <title>XKCD генератор паролей</title>
+    <link rel="stylesheet" type="text/css" href="./res/style.css" />
+  </head>
+  <body>
     <script>
-        async function makePassword() {
-            // Скачиваем список EFF и проверяем целостность. Не доверяйте проверке целостности, проверьте сами
-            // Открываем https://www.eff.org/files/2016/07/18/eff_large_wordlist.txt и жмем F12 чтобы открыть консоль и написать
+      async function makePassword({ wordlistUrl, integrity }) {
+        // Скачиваем список слов и проверяем его целостность
+        const wordlist = await fetch(wordlistUrl, { integrity }).then((res) => res.text());
 
-            // await fetch(location.href, { integrity: 'sha384-08Zyc2ydrI+QM7TP2c1fgd3aA/gqwudW0UMg0DqfFf0fqP4CVuU45K7lnlUry9Ts' }).then((res) => res.text())
+        // Извлекаем слова используя регулярное выражение, оно извлекает слова после 5 цифр и таба
+        const words = [...wordlist.matchAll(/[0-9]{5}	(.*)/g)].map(([, word]) => word);
 
-            // Появится список слов, без ошибки
-            // Копируем этот код, меняем любой символ (кроме sha384-, это тип хеша) и выполняем его
-            // Появится ошибка целостности
-            const wordList = await fetch("./eff_large_wordlist.txt", { integrity: 'sha384-08Zyc2ydrI+QM7TP2c1fgd3aA/gqwudW0UMg0DqfFf0fqP4CVuU45K7lnlUry9Ts' }).then((res) => res.text());
+        // Создаем массив для случайных чисел
+        const passwordWordIds = new Uint16Array(4);
 
-            // Извлекаем слова используя регулярное выражение
-            const words = [...wordList.matchAll(/[a-z]+/g)].map(([word]) => word);
+        // Заполняем его криптостойкими псевдослучайными числами
+        crypto.getRandomValues(passwordWordIds);
 
-            // Создаем массив для случайных чисел
-            const passwordWordIds = new Uint16Array(4);
+        // Сопоставляем каждый номер слову. У нас будет 4 слова по 4096 вариантов в каждом, что добавляет по 12 бит энтропии на слово, 48 бит всего
+        return [...passwordWordIds].map((id) => words[id % 4096]).join(" ");
+      }
 
-            // Заполняем его криптостойкими псевдослучайными числами
-            crypto.getRandomValues(passwordWordIds);
-
-            // Сопоставляем каждый номер слову. У нас будет 4 слова по 4096 вариантов в каждом, что добавляет по 12 бит энтропии на слово, 48 бит всего
-            return [...passwordWordIds].map(id => words[id % 4096]).join(' ');
-        }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            makePassword()
-                // Собираем сообщение
-                .then(password =>
-                    `<div>Ваш пароль с 48 битной энтропией:</div>` +
-                    `<div class="password-text">${password}</div>` +
-                    `<div>Достаточно хорош, чтобы быть мастер паролем, держите в секрете. Обновите страницу чтобы сгенерировать еще один</div>`
-                )
-                // Перехватываем ошибку
-                .catch(() => 'Во время генерации пароля произошла ошибка')
-                // Записываем на страницу
-                .then(message => document.querySelector('.password').innerHTML = message);
-        });
+      window.addEventListener("DOMContentLoaded", () => {
+        Promise.all([
+          // Не доверйте проверке целостности, проверьте
+          // Открываем https://www.eff.org/files/2016/07/18/eff_large_wordlist.txt
+          // Нажимаем F12 и пишем
+          // await fetch(location.href, { integrity: 'sha384-08Zyc2ydrI+QM7TP2c1fgd3aA/gqwudW0UMg0DqfFf0fqP4CVuU45K7lnlUry9Ts' }).then((res) => res.text())
+          // Вы увидите содержимое, проверка целостности успешна
+          // Измените один символ в хеше кроме sha384-, тк это его тип и нажмите выполнить
+          // Вы увидите ошибку проверки целостности
+          makePassword({ wordlistUrl: "./res/eff_large_wordlist.txt", integrity: "sha384-08Zyc2ydrI+QM7TP2c1fgd3aA/gqwudW0UMg0DqfFf0fqP4CVuU45K7lnlUry9Ts" }),
+          // Не доверйте проверке целостности, проверьте
+          // Открываем https://theworld.com/%7Ereinhold/diceware.wordlist.asc
+          // Нажимаем F12 и пишем
+          // await fetch(location.href, { integrity: 'sha384-4n493bkdsfRTGItNlVLnGkWyGb/YfACD/+Iu6/yor5D06tbp3cAZAFzM2z8SIJYe' }).then((res) => res.text())
+          // Вы увидите содержимое, проверка целостности успешна
+          // Измените один символ в хеше кроме sha384-, тк это его тип и нажмите выполнить
+          // Вы увидите ошибку проверки целостности
+          makePassword({ wordlistUrl: "./res/diceware_wordlist.txt", integrity: "sha384-4n493bkdsfRTGItNlVLnGkWyGb/YfACD/+Iu6/yor5D06tbp3cAZAFzM2z8SIJYe" }),
+        ])
+          // Собираем сообщение
+          .then(
+            (passwords) =>
+              "<div>Ваш пароль с 48 битной энтропией по списку EFF:</div>" +
+              '<div class="password-text">' +
+              passwords[0] +
+              "</div>" +
+              "<div>Ваш пароль с 48 битной энтропией по списку diceware(tm):</div>" +
+              '<div class="password-text">' +
+              passwords[1] +
+              "</div>" +
+              "<div>Достаточно хорош, чтобы быть мастер паролем, держите в секрете. Обновите страницу чтобы сгенерировать еще один</div>"
+          )
+          // Перехватываем ошибку
+          .catch(() => "Во время генерации пароля произошла ошибка")
+          // Записываем на страницу
+          .then((message) => (document.querySelector(".password").innerHTML = message));
+      });
     </script>
-    <style>
-        body {
-            font-size: 20px;
-            line-height: 40px;
-            display: flex;
-            flex-direction: row;
-            flex-wrap: wrap;
-            justify-content: space-evenly;
-            row-gap: 20px;
-        }
-
-        img {
-            object-fit: contain;
-        }
-
-        .languages {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-flow: column;
-        }
-
-        .language-selector {
-            text-decoration: none;
-            font-size: 50px;
-            margin: 10px;
-        }
-
-        .description {
-            display: flex;
-            justify-content: center;
-            flex-direction: column;
-            max-width: calc(100% - 400px);
-        }
-
-        .password-container {
-            flex-basis: 100%;
-            display: flex;
-            justify-content: center;
-        }
-
-        .password-text {
-            font-size: 42px;
-            margin: 10px 0;
-            font-weight: bold;
-        }
-
-        .password {
-            padding: 20px;
-            justify-content: center;
-            display: flex;
-            flex-flow: column;
-            background-color: lightgray;
-        }
-
-        .wow {
-            margin: 5px;
-            display: block;
-        }
-
-        .xkcd-line {
-            flex-basis: 100%;
-            display: flex;
-            flex-direction: row;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .xkcd-item {
-            display: block;
-            margin: 5px;
-        }
-
-        .xkcd-image {
-            width: 100%;
-        }
-
-        @media (max-width: 1220px) {
-
-            body {
-                font-size: 15px;
-                line-height: 30px;
-            }
-
-            .languages {
-                flex-flow: row;
-            }
-
-            .password-text {
-                font-size: 30px;
-            }
-
-            body {
-                row-gap: 5px;
-            }
-
-            .password-container {
-                order: 1;
-            }
-
-            .description {
-                order: 2;
-                max-width: unset;
-            }
-
-            .xkcd-line {
-                order: 3;
-            }
-
-            .wow {
-                order: 4;
-            }
-        }
-
-        @media (max-width: 750px) {
-            .password-text {
-                font-size: 15px;
-            }
-        }
-    </style>
-</head>
-
-<body>
+    <object data="./res/eff_large_wordlist.txt">
+      <!-- Если вы захотите сохранить страницу для работы оффлайн, браузер нужно предупредить о том, чтобы скачать эти файлы -->
+    </object>
+    <object data="./res/diceware_wordlist.txt">
+      <!-- Если вы захотите сохранить страницу для работы оффлайн, браузер нужно предупредить о том, чтобы скачать эти файлы -->
+    </object>
     <div class="languages">
-        <a href="./" class="language-selector">🇺🇸</a>
-        <a href="./ru.html" class="language-selector">🇷🇺</a>
+      <a href="./index.html" class="language-selector">🇺🇸</a>
+      <a href="./ru.html" class="language-selector">🇷🇺</a>
     </div>
     <div class="description">
-        <div class="description-text">Надежный генератор XKCD паролей (неофициальный).</div>
-        <div class="description-text">
-            Легкий, без JS зависимостей, основан на <a
-                href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API" target="_blank"
-                rel="noopener">Web Crypto API</a> и <a
-                href="https://www.eff.org/files/2016/07/18/eff_large_wordlist.txt" target="_blank" rel="noopener">списке
-                слов от EFF</a>.
-        </div>
-        <div class="description-text">
-            <b>Не доверяйте, добавьте <code>view-source:</code> перед адресом страницу и проверьте, код хорошо
-                откомментирован.</b>
-        </div>
-        <div class="description-text">Для большей безопасности используйте режим инкогнито, в нем выключены расширения.
-        </div>
+      <div class="description-text">Надежный генератор XKCD паролей (неофициальный).</div>
+      <div class="description-text">
+        Легкий, без JS зависимостей, основан на <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API" target="_blank" rel="noopener">Web Crypto API</a> и
+        <a href="https://www.eff.org/files/2016/07/18/eff_large_wordlist.txt" target="_blank" rel="noopener">списке слов от EFF</a>.
+      </div>
+      <div class="description-text">
+        <b>Не доверяйте, добавьте <code>view-source:</code> перед адресом страницу и проверьте, код хорошо откомментирован.</b>
+      </div>
+      <div class="description-text">Для большей безопасности используйте режим инкогнито, в нем выключены расширения.</div>
     </div>
-    <img src="./img/wow.jpeg" class="wow" />
+    <img src="./res/wow.jpeg" class="wow" />
     <div class="password-container">
-        <div class="password">Генерация...</div>
+      <div class="password">Генерация...</div>
     </div>
     <div class="xkcd-line">
-        <a href="https://xkcd.ru/936/" target="_blank" rel="noopener" class="xkcd-item">
-            <img src="./img/ru/xkcd1.png" class="xkcd-image" />
-        </a>
-        <a href="https://xkcd.ru/936/" target="_blank" rel="noopener" class="xkcd-item">
-            <img src="./img/ru/xkcd2.png" class="xkcd-image" />
-        </a>
-        <a href="https://xkcd.ru/936/" target="_blank" rel="noopener" class="xkcd-item">
-            <img src="./img/ru/xkcd3.png" class="xkcd-image" />
-        </a>
+      <a href="https://xkcd.ru/936/" target="_blank" rel="noopener" class="xkcd-item">
+        <img src="./res/img-ru/xkcd1.png" class="xkcd-image" />
+      </a>
+      <a href="https://xkcd.ru/936/" target="_blank" rel="noopener" class="xkcd-item">
+        <img src="./res/img-ru/xkcd2.png" class="xkcd-image" />
+      </a>
+      <a href="https://xkcd.ru/936/" target="_blank" rel="noopener" class="xkcd-item">
+        <img src="./res/img-ru/xkcd3.png" class="xkcd-image" />
+      </a>
     </div>
     <div class="xkcd-line">
-        <a href="https://xkcd.ru/936/" target="_blank" rel="noopener" class="xkcd-item">
-            <img src="./img/ru/xkcd4.png" class="xkcd-image" />
-        </a>
-        <a href="https://xkcd.ru/936/" target="_blank" rel="noopener" class="xkcd-item">
-            <img src="./img/ru/xkcd5.png" class="xkcd-image" />
-        </a>
-        <a href="https://xkcd.ru/936/" target="_blank" rel="noopener" class="xkcd-item">
-            <img src="./img/ru/xkcd6.png" class="xkcd-image" />
-        </a>
+      <a href="https://xkcd.ru/936/" target="_blank" rel="noopener" class="xkcd-item">
+        <img src="./res/img-ru/xkcd4.png" class="xkcd-image" />
+      </a>
+      <a href="https://xkcd.ru/936/" target="_blank" rel="noopener" class="xkcd-item">
+        <img src="./res/img-ru/xkcd5.png" class="xkcd-image" />
+      </a>
+      <a href="https://xkcd.ru/936/" target="_blank" rel="noopener" class="xkcd-item">
+        <img src="./res/img-ru/xkcd6.png" class="xkcd-image" />
+      </a>
     </div>
     <div class="xkcd-line">
-        <a href="https://xkcd.ru/936/" target="_blank" rel="noopener" class="xkcd-item">
-            <img src="./img/ru/xkcd7.png" class="xkcd-image" />
-        </a>
+      <a href="https://xkcd.ru/936/" target="_blank" rel="noopener" class="xkcd-item">
+        <img src="./res/img-ru/xkcd7.png" class="xkcd-image" />
+      </a>
     </div>
-</body>
-
+  </body>
 </html>
